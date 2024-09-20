@@ -1,0 +1,126 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      #playPauseButtonContainer {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        text-align: center;
+        z-index: 999;
+      }
+
+      #playPauseButton {
+        width: 50px;
+        height: 50px;
+        background: url('https://cdn-icons-png.flaticon.com/512/109/109197.png') no-repeat center center;
+        background-size: contain;
+        border: 2px solid #ffffff;
+        border-radius: 30%;
+        cursor: pointer;
+        outline: none;
+      }
+
+      #playPauseButton:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+
+      #playPauseText {
+        margin-top: 5px;
+        font-size: 14px;
+        color: #ffffff;
+      }
+
+      #customButton {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: transparent;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        z-index: 1000;
+      }
+
+      #customButton:hover {
+        text-decoration: underline;
+      }
+
+      /* Hide the VR button */
+      .a-enter-vr-button {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      mindar-image="imageTargetSrc: ./targets.mind"
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false">
+
+      <a-assets>
+        <video id="video" src="./vid2.mp4" playsinline muted loop></video>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity id="target" mindar-image-target="targetIndex: 0">
+        <a-plane
+          material="src: #video"
+          position="0 0 0"
+          height="0.8"
+          width="1" />
+      </a-entity>
+    </a-scene>
+
+    <div id="playPauseButtonContainer">
+      <button id="playPauseButton"></button>
+      <div id="playPauseText">Play with Sound</div>
+    </div>
+
+    <!-- Custom Transparent Button -->
+    <button id="customButton" onclick="window.location.href='https://www.overlay-ai.com';">DEMO APP</button>
+
+    <script>
+      const video = document.querySelector('#video');
+      const button = document.querySelector('#playPauseButton');
+      const buttonText = document.querySelector('#playPauseText');
+
+      // Video is initially paused and muted
+      video.pause();
+      video.muted = true;
+
+      button.addEventListener('click', function() {
+        if (video.paused) {
+          video.muted = false;  // Unmute the video
+          video.play();  // Play the video
+          button.style.backgroundImage = "url('https://cdn-icons-png.flaticon.com/512/109/109197.png')";
+          buttonText.textContent = 'Pause';
+        } else {
+          video.pause();  // Pause the video
+          buttonText.textContent = 'Play with Sound';
+        }
+      });
+
+      // Use MindAR's `targetFound` and `targetLost` events
+      document.querySelector('a-scene').addEventListener('targetFound', (event) => {
+        // Start the video and unmute when the target is found
+        video.play();
+        video.muted = false;  // Unmute when target is found
+        buttonText.textContent = 'Pause';
+      });
+
+      document.querySelector('a-scene').addEventListener('targetLost', (event) => {
+        // Pause the video and mute when the target is lost
+        video.pause();
+        video.muted = true;  // Mute when target is lost
+        buttonText.textContent = 'Play with Sound';
+      });
+    </script>
+  </body>
+</html>
